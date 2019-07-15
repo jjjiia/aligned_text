@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="../favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <title>citation timeline</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <link href="https://fonts.googleapis.com/css?family=Libre+Baskerville" rel="stylesheet"> 
+    <script type="text/javascript" src="d3.v5.min.js"></script>
+    <script type="text/javascript" src="d3-tip.js"></script>
+  
+    
+    <style>
+        .d3-tip{
+            background-color:rgba(255,255,255,.6);
+            padding:10px;
+            font-family:helvetica;
+            font-size:10px;
+        }
+        body{
+            font-size:10px;
+            font-family:helvetica;
+            line-height:150%;
+        }
+        .before{
+            text-align:right;
+            vertical-align: top; /* here */
+            display:inline-block;
+            position:absolute;
+            top:0px;
+            right:50%;
+            margin-right:3px;
+            width:10000px;
+        }
+        .center{
+            color:red;
+            vertical-align: top; /* here */
+            display:inline-block;
+            position:absolute;
+            top:0px;
+            left:0px;
+            margin-left:50%;
+            
+        }
+        .after{
+            color:#888;
+            vertical-align: top; /* here */
+            display:inline-block;
+            position:absolute;
+            top:0px;
+            left:45px;
+            margin-left:50%;
+            width:10000px;
+        }
+    </style>
+</head>
+<body>
+   
+    <div id="chart1">
+    </div>
+   
+<script type="text/javascript" src="dataArray.js"></script>
+
+
+
+<script>
+Promise.all([d3.csv("web_of_science_citations.csv")])
+    .then(function(data){
+        var formatted = formatData(data[0])
+        
+        drawText(formatted)
+    })
+function formatData(data){
+    var split = []
+    for(var i in data){
+        if(data[i].Abs!=undefined){
+            var abs = data[i].Abs
+            var absList = abs.split(". ")
+            for(var j in absList){
+                split.push(absList[j])
+            }
+        }
+    }
+    return split
+}
+
+function drawText(data){
+    var splitBy = "homophily"
+    var topMarginIndex = 0
+    
+    for(var i in data){
+            var absList = data[i].split(splitBy)
+            
+            if(absList.length>1){
+                topMarginIndex+=1
+                var topMargin = topMarginIndex*20+"px"
+                d3.select("#chart1").append("div").attr("id","index_"+i).attr("class","row")
+                
+                d3.select("#index_"+i).append("div").html(absList[0]).attr("class","before")                
+                .style("top",topMargin)
+
+                d3.select("#index_"+i).append("div").html(splitBy).style("color","red").attr("class","center")
+                .style("top",topMargin)
+                
+                if(absList[1][absList[1].length-1]!="."){
+                    var ending =absList[1]+"."
+                }
+                if(ending[0]!="\'" && ending[0]!=","&& ending[0]!="."&& ending[0]!="-"&& ending[0]!=")"&& ending[0]!="\""){
+                    ending = "&nbsp"+ending
+                }
+            
+                d3.select("#index_"+i).append("div")
+                .html(ending)
+                .attr("class","after")
+                .style("top",topMargin)
+                //.style("margin-left",splitBy.length*2+9+"px")
+                //break
+            }
+    }
+}
+</script>
+</body>
+</html>
